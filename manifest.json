@@ -1,0 +1,12 @@
+{
+  "name": "Profile Difficulty Calculator",
+  "short_name": "ProfileDifficulty",
+  "start_url": "/profile-difficulty/index.html",
+  "display": "standalone",
+  "background_color": "#1b1b1b",
+  "theme_color": "#1b1b1b",
+  "icons": [
+    {"src": "/profile-difficulty/icons/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "/profile-difficulty/icons/icon-512.png", "sizes": "512x512", "type": "image/png"}
+  ]
+}

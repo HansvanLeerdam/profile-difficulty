@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>Profile Difficulty Calculator</title>
+  <link rel="manifest" href="/profile-difficulty/manifest.json"/>
+  <link rel="icon" href="/profile-difficulty/profile-difficulty.ico" type="image/x-icon">
+  <link rel="stylesheet" href="styles.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <img class="logo" src="/profile-difficulty/logo.png" alt="logo"/>
+    <h1>Profile Difficulty Calculator</h1>
+    <div class="actions">
+      <button id="btn_export" onclick="exportReport()">💾 Save Report</button>
+    </div>
+  </header>
+
+  <main class="content">
+    <section class="page active" id="profiledifficulty">
+      <!-- Content preserved -->
+      <p>App content here (inputs, results, etc.).</p>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/profile-difficulty/service-worker.js")
+        .then(() => console.log("Service Worker registered"))
+        .catch(err => console.error("SW registration failed:", err));
+    });
+  }
+  </script>
+</body>
+</html>
