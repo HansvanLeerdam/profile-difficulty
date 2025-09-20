@@ -1,0 +1,185 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>Profile Difficulty Calculator</title>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="stylesheet" href="styles.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <img class="logo" src="../logo.png" alt="logo"/>
+    <h1>Profile Difficulty Calculator</h1>
+    <div class="actions">
+      <button id="btn_export" onclick="exportReport()">💾 Save Report</button>
+    </div>
+  </header>
+
+  <main class="content">
+    <section class="page active" id="profiledifficulty">
+
+      <!-- Top row: Inputs on left, Company Info + Results stacked on right -->
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head">
+            <h3>Inputs</h3>
+            <button class="reset" onclick="resetInputs()">Reset</button>
+          </div>
+          <label>Profile Type
+            <select id="pd_type">
+              <option value="Solid">Solid</option>
+              <option value="Hollow" selected>Hollow</option>
+            </select>
+          </label>
+          <label>Category
+            <select id="pd_category">
+              <option value="A">A</option>
+              <option value="B" selected>B</option>
+              <option value="C">C</option>
+              <option value="SP">SP</option>
+            </select>
+          </label>
+          <label>Slot depth (mm) <input class="num" id="pd_slot_depth" inputmode="decimal" type="tel" placeholder="e.g. 10"/></label>
+          <label>Slot opening width (mm) <input class="num" id="pd_slot_open" inputmode="decimal" type="tel" placeholder="e.g. 5"/></label>
+          <label>Number of hollow sections <input class="num" id="pd_hollows" inputmode="decimal" type="tel" placeholder="e.g. 1"/></label>
+          <label>Wall thickness (mm) <input class="num" id="pd_wall" inputmode="decimal" type="tel" placeholder="e.g. 1,5"/></label>
+          <label>Profile perimeter (mm) <input class="num" id="pd_perimeter" inputmode="decimal" type="tel" placeholder="e.g. 250"/></label>
+          <label>Profile weight (kg/m) <input class="num" id="pd_weight" inputmode="decimal" type="tel" placeholder="e.g. 0,75"/></label>
+          <label>Cavities in die <input class="num" id="pd_cavities" inputmode="decimal" type="tel" placeholder="e.g. 2"/></label>
+          <label>CD (mm) <input class="num" id="pd_cd_mm" inputmode="decimal" type="tel" placeholder="e.g. 105"/></label>
+          <label>Press size (inch)
+            <select id="pd_press_inch">
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option placeholder="e.g. 1">7</option>
+              <option placeholder="e.g. 5" selected>8</option>
+              <option value="9">9</option>
+              <option placeholder="e.g. 10">10</option>
+              <option value="12">12</option>
+            </select>
+          </label>
+          <label>Alloy
+            <select id="pd_alloy">
+              <option>6060</option>
+              <option selected>6063</option>
+              <option>6463</option>
+              <option>6101</option>
+              <option>6106</option>
+              <option>6005A</option>
+              <option>6061</option>
+              <option>6082</option>
+            </select>
+          </label>
+          <label>Tolerance category
+            <select id="pd_tol">
+              <option>Acc. 755-9</option>
+              <option selected>Acc. 12020-2</option>
+              <option>> 30% < 755-9</option>
+              <option>> 30% < 12020-2</option>
+              <option>More restrictive</option>
+            </select>
+          </label>
+          <label>Surface class
+            <select id="pd_surface">
+              <option>None</option>
+              <option selected>Mill Finish</option>
+              <option>Powder Coated</option>
+              <option>Anodised</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="stack-col">
+          <div class="card">
+            <div class="card-head"><h3>Company Info</h3></div>
+            <label>Company Name <input id="gs_company_name" type="text" placeholder="Your company name"/></label>
+            <label>Company Logo <input id="gs_company_logo" type="file" accept="image/*"/></label>
+            <div class="note">Company name and logo will appear in the PDF report.</div>
+          </div>
+
+                    <div class="card">
+            <div class="card-head"><h3>Sales Manager Info</h3></div>
+            <label>Sales Manager Name <input id="sm_name" type="text" placeholder="e.g., John Doe"/></label>
+            <label>Quotation Date <input id="sm_date" type="date"/></label>
+            <label>Client Company Name <input id="sm_client" type="text" placeholder="Client Co."/></label>
+            <label>Profile Reference <input id="sm_profile_ref" type="text" placeholder="e.g., PR-2025-001"/></label>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3>Results</h3></div>
+            <div><span>Difficulty Score (0–100)</span><span class="value big" id="pd_res_score">—</span></div>
+            <div><span>Difficulty Level</span><span class="value big" id="pd_res_level">—</span></div>
+            <div class="note">Levels: Very easy, Easy, Normal, Difficult, Very Difficult</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Second row: 3 equal columns -->
+      <div class="three-col" style="margin-top:12px">
+        <div class="card">
+          <div class="card-head"><h3>Calculated</h3></div>
+          <div><span>Tongue ratio (depth/open)</span><span class="value" id="pd_calc_tongue">—</span></div>
+          <div><span>Weight in die (kg/m)</span><span class="value" id="pd_calc_w_in_die">—</span></div>
+          <div><span>Profile area (mm²)</span><span class="value" id="pd_calc_area">—</span></div>
+          <div><span>Perimeter / Area</span><span class="value" id="pd_calc_p_over_a">—</span></div>
+          <div><span>Container Ø (mm)</span><span class="value" id="pd_calc_cont_d">—</span></div>
+          <div><span>Container area (mm²)</span><span class="value" id="pd_calc_carea">—</span></div>
+          <div><span>CD / Wall</span><span class="value" id="pd_calc_cd_wall">—</span></div>
+          <div><span>Extrusion ratio</span><span class="value" id="pd_calc_ratio">—</span></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3>Factors (auto, 0–10)</h3></div>
+          <div><span>Profile Type</span><span class="value" id="pd_f_type_view">—</span></div>
+          <div><span>Category</span><span class="value" id="pd_f_category_view">—</span></div>
+          <div><span>Tongue ratio</span><span class="value" id="pd_f_tongue_view">—</span></div>
+          <div><span>Hollow sections</span><span class="value" id="pd_f_hollows_view">—</span></div>
+          <div><span>Wall thickness</span><span class="value" id="pd_f_wall_view">—</span></div>
+          <div><span>Perimeter/Area</span><span class="value" id="pd_f_povera_view">—</span></div>
+          <div><span>Cavities in die</span><span class="value" id="pd_f_cav_view">—</span></div>
+          <div><span>CD/wall</span><span class="value" id="pd_f_cdwall_view">—</span></div>
+          <div><span>Alloy</span><span class="value" id="pd_f_alloy_view">—</span></div>
+          <div><span>Tolerance category</span><span class="value" id="pd_f_tol_view">—</span></div>
+          <div><span>Surface class</span><span class="value" id="pd_f_surface_view">—</span></div>
+          <div><span>Extrusion ratio</span><span class="value" id="pd_f_ratio_view">—</span></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3>Weights (0–100)</h3></div>
+          <label>Profile Type <input class="num" id="pd_w_type" inputmode="decimal" type="tel" value="100"/></label>
+          <label>Category <input class="num" id="pd_w_category" inputmode="decimal" type="tel" value="100"/></label>
+          <label>Tongue ratio <input class="num" id="pd_w_tongue" inputmode="decimal" type="tel" value="85"/></label>
+          <label>Hollow sections <input class="num" id="pd_w_hollows" inputmode="decimal" type="tel" value="65"/></label>
+          <label>Wall thickness <input class="num" id="pd_w_wall" inputmode="decimal" type="tel" value="90"/></label>
+          <label>Perimeter/Area <input class="num" id="pd_w_povera" inputmode="decimal" type="tel" value="70"/></label>
+          <label>Cavities in die <input class="num" id="pd_w_cav" inputmode="decimal" type="tel" value="35"/></label>
+          <label>CD/wall <input class="num" id="pd_w_cdwall" inputmode="decimal" type="tel" value="80"/></label>
+          <label>Alloy <input class="num" id="pd_w_alloy" inputmode="decimal" type="tel" value="60"/></label>
+          <label>Tolerance category <input class="num" id="pd_w_tol" inputmode="decimal" type="tel" value="75"/></label>
+          <label>Surface class <input class="num" id="pd_w_surface" inputmode="decimal" type="tel" value="50"/></label>
+          <label>Extrusion ratio <input class="num" id="pd_w_ratio" inputmode="decimal" type="tel" value="100"/></label>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+
+<script>
+document.getElementById('gs_company_logo').addEventListener('change', function(e){
+  const file = e.target.files[0];
+  if(file){
+    const reader = new FileReader();
+    reader.onload = ev => { e.target._dataUrl = ev.target.result; };
+    reader.readAsDataURL(file);
+  }
+});
+</script>
+
+</body>
+</html>
